@@ -9,8 +9,12 @@ app.post('/found',(req,res)=>{
     const person = req.body;
     console.log(person);
     res.send(person);
+    
 });
-app.post('/missed',(req,res)=>{
+app.use('/missed',(req,res)=>{
+    res.send("welcome in gednie");
+});
+app.use('/',(req,res)=>{
     res.send("welcome in gednie");
 });
 
