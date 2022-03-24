@@ -7,8 +7,9 @@ app.use(express.json());
 const port = process.env.port || 300;
 app.post('/found',(req,res)=>{
     const person = req.body;
-    console.log(person);
-    res.send(person);
+    //console.log(person);
+    insertFoundPerson(person)
+    res.send("done ✌");
     
 });
 app.use('/missed',(req,res)=>{
