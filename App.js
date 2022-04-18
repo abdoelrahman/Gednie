@@ -39,7 +39,7 @@ app.post("/found", async (req, res) => {
   person.faceDescriptor = await computeDescriptor(photoPath);
 
   // Save to database
-  insertFoundPerson(person);
+  await insertFoundPerson(person);
 
   res.send("Found person's data saved!");
 });
@@ -55,7 +55,7 @@ app.post("/missed", async (req, res) => {
   }
 
   // Upload photo
-  const photoPath = await handlePhotoUpload(req.files.photo, "found");
+  const photoPath = await handlePhotoUpload(req.files.photo, "missed");
 
   // Get other person's data
   const person = req.body;
