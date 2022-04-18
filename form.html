@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+
+  <h2>Submit missed person</h2>
+  <form action="/missed" method="post" enctype="multipart/form-data">
+    <input type="text" name="name" placeholder="name">
+    <br>
+    <input type="text" name="age" placeholder="age">
+    <br>
+    <input type="text" name="location" placeholder="location">
+    <br>
+    <select name="physicalStatus" placeholder="age">
+      <option>-- Select physical status --</option>
+      <option value="well">Well</option>
+      <option value="handicapped">Handicapped</option>
+    </select>
+    <br>
+    <select name="mentalStatus" placeholder="age">
+      <option>-- Select mental status --</option>
+      <option value="well">Well</option>
+      <option value="handicapped">Handicapped</option>
+    </select>
+    <br>
+    <input type="file" name="photo" placeholder="age" required>
+    <br>
+    <button>Submit</button>
+  </form>
+
+  <hr style="margin: 2rem 0;">
+
+  <h2>Submit found person</h2>
+  <form action="/found" method="post" enctype="multipart/form-data">
+    <input type="text" name="name" placeholder="name">
+    <br>
+    <input type="text" name="age" placeholder="age">
+    <br>
+    <input type="text" name="location" placeholder="location">
+    <br>
+    <select name="physicalStatus" placeholder="age">
+      <option>-- Select physical status --</option>
+      <option value="well">Well</option>
+      <option value="handicapped">Handicapped</option>
+    </select>
+    <br>
+    <select name="mentalStatus" placeholder="age">
+      <option>-- Select mental status --</option>
+      <option value="well">Well</option>
+      <option value="handicapped">Handicapped</option>
+    </select>
+    <br>
+    <input type="file" name="photo" placeholder="age" required>
+    <br>
+    <button>Submit</button>
+  </form>
+</body>
+
+</html>
