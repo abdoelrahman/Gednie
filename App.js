@@ -1,8 +1,13 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
 
-const { handlePhotoUpload } = require("./functions");
+const {
+  handlePhotoUpload,
+  computeDescriptor,
+  compareFaces,
+} = require("./functions");
 const { insertFoundPerson, insertMissedPerson } = require("./db");
+const { compareService } = require("./services");
 
 const app = express();
 app.use(express.json());
@@ -16,7 +21,7 @@ app.use(
 /**
  * Submit and save found person's data
  */
-app.post("/found", (req, res) => {
+app.post("/found", async (req, res) => {
   // Validate photo exist
   if (!req.files) {
     res.status(412).send("No photo uploaded.");
@@ -24,11 +29,14 @@ app.post("/found", (req, res) => {
   }
 
   // Upload photo
-  const photoPath = handlePhotoUpload(req.files.photo, "found");
+  const photoPath = await handlePhotoUpload(req.files.photo, "found");
 
   // Get other person's data
   const person = req.body;
   person.photo = photoPath;
+
+  // Compute face descriptor
+  person.faceDescriptor = await computeDescriptor(photoPath);
 
   // Save to database
   insertFoundPerson(person);
@@ -39,7 +47,7 @@ app.post("/found", (req, res) => {
 /**
  * Submit and save missed person's data
  */
-app.post("/missed", (req, res) => {
+app.post("/missed", async (req, res) => {
   // Validate photo exist
   if (!req.files) {
     res.status(412).send("No photo uploaded.");
@@ -47,14 +55,19 @@ app.post("/missed", (req, res) => {
   }
 
   // Upload photo
-  const photoPath = handlePhotoUpload(req.files.photo, "missed");
+  const photoPath = await handlePhotoUpload(req.files.photo, "found");
 
   // Get other person's data
   const person = req.body;
   person.photo = photoPath;
 
+  // Compute face descriptor
+  person.faceDescriptor = await computeDescriptor(photoPath);
+
   // Save to database
-  insertMissedPerson(person);
+  await insertMissedPerson(person);
+
+  compareService();
 
   res.send("Missed person's data saved!");
 });
@@ -62,7 +75,7 @@ app.post("/missed", (req, res) => {
 /*
  * home for test purposes
  */
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
   res.sendFile(__dirname + "/form.html");
 });
 

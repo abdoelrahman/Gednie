@@ -19,6 +19,7 @@ const missedSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now() },
   physicalStatus: String,
   mentalStatus: String,
+  faceDescriptor: String,
   photo: { type: String, required: true },
 });
 
@@ -28,6 +29,10 @@ async function insertMissedPerson(personInfo) {
   const person = new missedPerson(personInfo);
   const result = await person.save();
   return result;
+}
+
+async function getMissedPersons() {
+  return await missedPerson.find({});
 }
 
 /**
@@ -40,6 +45,7 @@ const foundSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now() },
   physicalStatus: String,
   mentalStatus: String,
+  faceDescriptor: String,
   photo: { type: String, required: true },
 });
 
@@ -51,7 +57,13 @@ async function insertFoundPerson(personInfo) {
   return result;
 }
 
+async function getFoundPersons() {
+  return await foundPerson.find({});
+}
+
 module.exports = {
   insertMissedPerson,
+  getMissedPersons,
   insertFoundPerson,
+  getFoundPersons,
 };
