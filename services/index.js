@@ -8,7 +8,7 @@ async function compareService() {
   const missedPersons = await getMissedPersons();
   const foundPersons = await getFoundPersons();
 
-  let match = null;
+  let match = false;
   missedPersons.forEach((missed) => {
     foundPersons.forEach((found) => {
       const distance = compareFaces(
@@ -17,7 +17,7 @@ async function compareService() {
       );
 
       if (distance <= 0.25) {
-        return (match = true);
+        match = true;
       }
     });
   });

@@ -35,8 +35,19 @@ function compareFaces(descriptor1, descriptor2) {
   return faceapi.euclideanDistance(descriptor1, descriptor2);
 }
 
+async function validateFaceDetected(photoPath) {
+  try {
+    const img = await canvas.loadImage(photoPath);
+    await faceapi.nets.tinyFaceDetector.loadFromDisk("weights");
+    return (await faceapi.tinyFaceDetector(img)).length ? true : false;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   handlePhotoUpload,
   computeDescriptor,
   compareFaces,
+  validateFaceDetected,
 };

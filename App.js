@@ -4,7 +4,7 @@ const fileUpload = require("express-fileupload");
 const {
   handlePhotoUpload,
   computeDescriptor,
-  compareFaces,
+  validateFaceDetected,
 } = require("./functions");
 const { insertFoundPerson, insertMissedPerson } = require("./db");
 const { compareService } = require("./services");
@@ -31,6 +31,12 @@ app.post("/found", async (req, res) => {
   // Upload photo
   const photoPath = await handlePhotoUpload(req.files.photo, "found");
 
+  // Validate face detected in the image
+  if (!(await validateFaceDetected(photoPath))) {
+    res.status(412).send("No face detected.");
+    return;
+  }
+
   // Get other person's data
   const person = req.body;
   person.photo = photoPath;
@@ -56,6 +62,12 @@ app.post("/missed", async (req, res) => {
 
   // Upload photo
   const photoPath = await handlePhotoUpload(req.files.photo, "missed");
+
+  // Validate face detected
+  if (!(await validateFaceDetected(photoPath))) {
+    res.status(412).send("No face detected.");
+    return;
+  }
 
   // Get other person's data
   const person = req.body;
