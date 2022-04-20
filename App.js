@@ -46,7 +46,9 @@ app.post("/found", async (req, res) => {
   person.faceDescriptor = await computeDescriptor(photoPath);
 
   // Save to database
-  await insertFoundPerson(person);
+  const result =await insertFoundPerson(person);
+
+  compareService({person:result,path:"found"});
 
   res.send("Found person's data saved!");
 });
@@ -73,14 +75,13 @@ app.post("/missed", async (req, res) => {
   // Get other person's data
   const person = req.body;
   person.photo = photoPath;
-
   // Compute face descriptor
   person.faceDescriptor = await computeDescriptor(photoPath);
 
   // Save to database
-  await insertMissedPerson(person);
-
-  compareService();
+  const result=  await insertMissedPerson(person);
+ 
+  compareService({person:result,path:"missed"});
 
   res.send("Missed person's data saved!");
 });
