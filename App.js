@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const fileUpload = require("express-fileupload");
 
@@ -91,7 +92,7 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/form.html");
 });
 
-const port = process.env.port || 300;
+const port = process.env.PORT || 300;
 app.listen(port, () => {
   console.log("runing in port" + port);
 });
