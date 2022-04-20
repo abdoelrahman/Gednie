@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 mongoose
   .connect(
@@ -20,7 +21,7 @@ const missedSchema = new mongoose.Schema({
   physicalStatus: String,
   mentalStatus: String,
   faceDescriptor: String,
-  foundId:{type:Schema.types.ObjectId, ref:'FoundPerson'},
+  foundId:{type:Schema.Types.ObjectId, ref:'FoundPerson'},
   photo: { type: String, required: true },
 });
 
@@ -47,7 +48,7 @@ const foundSchema = new mongoose.Schema({
   physicalStatus: String,
   mentalStatus: String,
   faceDescriptor: String,
-  missedId:{type:Schema.types.ObjectId, ref:'MissedPerson'},
+  missedId:{type:Schema.Types.ObjectId, ref:'MissedPerson'},
   photo: { type: String, required: true },
 });
 
