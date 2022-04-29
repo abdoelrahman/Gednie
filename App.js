@@ -37,9 +37,13 @@ app.post("/found", async (req, res) => {
     res.status(412).send("No face detected.");
     return;
   }
+  console.log(req.files)
+
 
   // Get other person's data
   const person = JSON.parse(req.body.data);
+  console.log('person >>>' ,person);
+
   person.photo = photoPath;
 
   // Compute face descriptor
