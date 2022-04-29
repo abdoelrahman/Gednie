@@ -37,13 +37,9 @@ app.post("/found", async (req, res) => {
     res.status(412).send("No face detected.");
     return;
   }
-  console.log(req.files)
-
 
   // Get other person's data
-  const person = JSON.parse(req.body.data);
-  console.log('person >>>' ,person);
-
+  const person = req.body;
   person.photo = photoPath;
 
   // Compute face descriptor
@@ -62,12 +58,10 @@ app.post("/found", async (req, res) => {
  */
 app.post("/missed", async (req, res) => {
   // Validate photo exist
-  console.log(req.body)
   if (!req.files) {
     res.status(412).send("No photo uploaded.");
     return;
   }
-  console.log(req.files)
 
   // Upload photo
   const photoPath = await handlePhotoUpload(req.files.photo, "missed");
@@ -79,8 +73,7 @@ app.post("/missed", async (req, res) => {
   }
 
   // Get other person's data
-  const person = JSON.parse(req.body.data);
-  console.log('person >>>' ,person);
+  const person = req.body;
   person.photo = photoPath;
   // Compute face descriptor
   person.faceDescriptor = await computeDescriptor(photoPath);
