@@ -38,6 +38,7 @@ async function compareService({person,path}) {
   console.log(match ? "Match found!" : "No match found :(");
 }
 
+
 module.exports = {
-  compareService,
+  compareService, getMissedPersons, getFoundPersons
 };

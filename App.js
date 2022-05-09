@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const fileUpload = require("express-fileupload");
+const cors = require('cors')
 
 const {
   handlePhotoUpload,
@@ -8,11 +9,14 @@ const {
   validateFaceDetected,
 } = require("./functions");
 const { insertFoundPerson, insertMissedPerson } = require("./db");
-const { compareService } = require("./services");
+const { compareService, getMissedPersons, getFoundPersons } = require("./services");
+const { stringify } = require("nodemon/lib/utils");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+
 app.use(
   fileUpload({
     createParentPath: true,
@@ -22,6 +26,50 @@ app.use(
 /**
  * Submit and save found person's data
  */
+ app.get('/found',async (req,res)=>{
+   const paths = []
+   const foundPersons = await getFoundPersons()
+ await res.send(foundPersons)
+ })
+ app.get('/missed',async (req,res)=>{
+   const paths = []
+   const missedPersons = await getMissedPersons()
+ await res.send(missedPersons)
+ })
+app.get(`/getFound/`, async (req, res) => {
+  const id = req.query.id;
+  let person = ''
+  console.log('id>>>',id)
+  const foundPersons = await getFoundPersons()
+   await foundPersons.map(p=>
+    {
+      console.log( JSON.stringify(p.photo)) 
+      console.log(id)
+      if(JSON.stringify(p.photo) === `${id}`){
+
+        person =  p.photo
+      }
+    })
+    await  res.download(person)    
+
+   });
+app.get(`/getMissed/`, async (req, res) => {
+  const id = req.query.id;
+  let person = ''
+  console.log('id>>>',id)
+  const missedPersons = await getMissedPersons()
+   await missedPersons.map(p=>
+    {
+      console.log( JSON.stringify(p.photo)) 
+      console.log(id)
+      if(JSON.stringify(p.photo) === `${id}`){
+
+        person =  p.photo
+      }
+    })
+    await  res.download(person)    
+
+   });
 app.post("/found", async (req, res) => {
   // Validate photo exist
   if (!req.files) {
