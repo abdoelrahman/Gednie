@@ -19,6 +19,7 @@ const missedSchema = new mongoose.Schema({
   physicalStatus: String,
   mentalStatus: String,
   faceDescriptor: String,
+  contactNumber: Number,
   foundId:{type:Schema.Types.ObjectId, ref:'FoundPerson'},
   photo: { type: String, required: true },
 });
@@ -46,6 +47,7 @@ const foundSchema = new mongoose.Schema({
   physicalStatus: String,
   mentalStatus: String,
   faceDescriptor: String,
+  contactNumber: Number,
   missedId:{type:Schema.Types.ObjectId, ref:'MissedPerson'},
   photo: { type: String, required: true },
 });

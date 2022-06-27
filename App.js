@@ -9,7 +9,7 @@ const {
   validateFaceDetected,
 } = require("./functions");
 const { insertFoundPerson, insertMissedPerson } = require("./db");
-const { compareService, getMissedPersons, getFoundPersons } = require("./services");
+const { compareService, getMissedPersons, getFoundPersons, validateExistPersonService } = require("./services");
 const { stringify } = require("nodemon/lib/utils");
 
 const app = express();
@@ -86,23 +86,26 @@ app.post("/found", async (req, res) => {
     return;
   }
   console.log(req.files)
-
-
+  
   // Get other person's data
+  
   const person = JSON.parse(req.body.data);
-  console.log('person >>>' ,person);
 
   person.photo = photoPath;
 
   // Compute face descriptor
   person.faceDescriptor = await computeDescriptor(photoPath);
-
+  if((await validateExistPersonService({person:person,path:"found"}))){
+    res.status(412).send({message:"already exists"})
+    return;
+  }
   // Save to database
   const result =await insertFoundPerson(person);
 
-  compareService({person:result,path:"found"});
 
-  res.send("Found person's data saved!");
+  const compareResult =await  compareService({person:result,path:"found"});
+
+  res.send(compareResult);
 });
 
 /**
@@ -128,17 +131,18 @@ app.post("/missed", async (req, res) => {
 
   // Get other person's data
   const person = JSON.parse(req.body.data);
-  console.log('person >>>' ,person);
   person.photo = photoPath;
   // Compute face descriptor
   person.faceDescriptor = await computeDescriptor(photoPath);
-
+  if((await validateExistPersonService({person:person,path:"missed"}))){
+    res.status(412).send({message:"already exists"})
+    return;
+  }
   // Save to database
-  const result=  await insertMissedPerson(person);
- 
-  compareService({person:result,path:"missed"});
+  const result=  await insertMissedPerson(person); 
+  const compareResult =await compareService({person:result,path:"missed"});
 
-  res.send("Missed person's data saved!");
+  res.send(compareResult);
 });
 
 /*
