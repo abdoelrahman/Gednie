@@ -38,7 +38,7 @@ async function compareService({person,path}) {
       }
 
   console.log(match ? "Match found!" : "No match found :(");
-  return (match ?{number:obj.contactNumber} : {message:'no mantch found'})
+  return (match ?{number:obj.contactNumber} : {message:'no match found'})
 }
 async function validateExistPersonService({person,path}) {
   console.log("Starting validation service ...");

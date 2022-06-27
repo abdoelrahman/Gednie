@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const fileUpload = require("express-fileupload");
 const cors = require('cors')
+const imageToBase64 = require('image-to-base64');
+
 
 const {
   handlePhotoUpload,
@@ -99,8 +101,21 @@ app.post("/found", async (req, res) => {
     res.status(412).send({message:"already exists"})
     return;
   }
+  await imageToBase64(photoPath) // Path to the image
+    .then(
+        (response) => {
+          // console.log(response)
+            return person.imageToBase64 =response // "cGF0aC90by9maWxlLmpwZw=="
+        }
+    )
+    .catch(
+        (error) => {
+            console.log(error); // Logs an error if there was one
+        }
+    )
   // Save to database
   const result =await insertFoundPerson(person);
+  console.log('result :>> ', result);
 
 
   const compareResult =await  compareService({person:result,path:"found"});
@@ -138,6 +153,17 @@ app.post("/missed", async (req, res) => {
     res.status(412).send({message:"already exists"})
     return;
   }
+  await imageToBase64(photoPath) // Path to the image
+  .then(
+      (response) => {
+        console.log(response)
+          return person.imageToBase64 =response // "cGF0aC90by9maWxlLmpwZw=="
+      }
+  )
+  .catch(
+      (error) => {
+          console.log(error); // Logs an error if there was one
+      })
   // Save to database
   const result=  await insertMissedPerson(person); 
   const compareResult =await compareService({person:result,path:"missed"});
