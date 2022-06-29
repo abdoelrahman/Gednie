@@ -1,5 +1,11 @@
-const { getMissedPersons, getFoundPersons } = require("../db");
-const { compareFaces } = require("../functions");
+const {
+  getMissedPersons,
+  getFoundPersons,
+  deleteMissedPerson,
+  deleteFoundPerson,
+  insertMatchedPerson,
+} = require("../db");
+const { compareFaces, sendSMS, generateShortLink } = require("../functions");
 
 async function compareService() {
   console.log("Starting compare service ...");
@@ -8,7 +14,7 @@ async function compareService() {
   const missedPersons = await getMissedPersons();
   const foundPersons = await getFoundPersons();
 
-  let match = false;
+  let match = null;
   missedPersons.forEach((missed) => {
     foundPersons.forEach((found) => {
       const distance = compareFaces(
@@ -17,12 +23,43 @@ async function compareService() {
       );
 
       if (distance <= 0.25) {
-        match = true;
+        // assign matched to variable
+        match = {
+          missed: missed,
+          found: found,
+        };
       }
     });
   });
 
-  console.log(match ? "Match found!" : "No match found :(");
+  if (match) {
+    console.log("Match found!");
+
+    // Move data to matched
+    const savedMatched = await insertMatchedPerson(match.missed, match.found);
+
+    // Delete from missed and found
+    await deleteMissedPerson(match.missed);
+    await deleteFoundPerson(match.found);
+
+    // Generate short link
+    const shortLink = await generateShortLink(
+      `${process.env.APP_URL}/matched/${savedMatched.id}`
+    );
+    console.log("Short link generated: " + shortLink);
+
+    // Send message
+    if (process.env.ENABLE_SEND_SMS === "true") {
+      sendSMS(
+        match.missed.contactInfo.phone,
+        `We found the missed person! for details: ${shortLink}`
+      );
+    }
+
+    return console.log("Match process completed.");
+  }
+
+  return console.log("No match found :(");
 }
 
 module.exports = {

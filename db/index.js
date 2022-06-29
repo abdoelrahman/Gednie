@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
@@ -18,9 +19,13 @@ const missedSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now() },
   physicalStatus: String,
   mentalStatus: String,
-  faceDescriptor: String,
-  foundId:{type:Schema.Types.ObjectId, ref:'FoundPerson'},
   photo: { type: String, required: true },
+  faceDescriptor: String,
+  contactInfo: {
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    relationship: { type: String },
+  },
 });
 
 const missedPerson = mongoose.model("MissedPerson", missedSchema);
@@ -29,6 +34,10 @@ async function insertMissedPerson(personInfo) {
   const person = new missedPerson(personInfo);
   const result = await person.save();
   return result;
+}
+
+async function deleteMissedPerson(person) {
+  return await missedPerson.deleteOne({ id: ObjectId(person.id) });
 }
 
 async function getMissedPersons() {
@@ -45,9 +54,12 @@ const foundSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now() },
   physicalStatus: String,
   mentalStatus: String,
-  faceDescriptor: String,
-  missedId:{type:Schema.Types.ObjectId, ref:'MissedPerson'},
   photo: { type: String, required: true },
+  faceDescriptor: { type: String, required: true },
+  contactInfo: {
+    name: { type: String },
+    phone: { type: String },
+  },
 });
 
 const foundPerson = mongoose.model("FoundPerson", foundSchema);
@@ -58,13 +70,44 @@ async function insertFoundPerson(personInfo) {
   return result;
 }
 
+async function deleteFoundPerson(person) {
+  return await foundPerson.deleteOne({ id: ObjectId(person.id) });
+}
+
 async function getFoundPersons() {
   return await foundPerson.find({});
 }
 
+/**
+ * Matched
+ */
+const MatchedSchema = new mongoose.Schema({
+  missedInfo: Object,
+  foundInfo: Object,
+});
+
+const matchedPerson = mongoose.model("MatchedPerson", MatchedSchema);
+
+async function insertMatchedPerson(missed, found) {
+  const person = new matchedPerson({
+    missedInfo: missed,
+    foundInfo: found,
+  });
+  const result = await person.save();
+  return result;
+}
+
+async function getMatchedPerson(id) {
+  return await matchedPerson.findById(ObjectId(id));
+}
+
 module.exports = {
   insertMissedPerson,
+  deleteMissedPerson,
   getMissedPersons,
   insertFoundPerson,
+  deleteFoundPerson,
   getFoundPersons,
+  insertMatchedPerson,
+  getMatchedPerson,
 };

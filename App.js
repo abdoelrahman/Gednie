@@ -1,98 +1,109 @@
 require("dotenv").config();
 const express = require("express");
-const fileUpload = require("express-fileupload");
 
 const {
-  handlePhotoUpload,
   computeDescriptor,
   validateFaceDetected,
+  generateShortLink,
 } = require("./functions");
-const { insertFoundPerson, insertMissedPerson } = require("./db");
+const {
+  insertFoundPerson,
+  insertMissedPerson,
+  getMatchedPerson,
+} = require("./db");
 const { compareService } = require("./services");
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "60mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  fileUpload({
-    createParentPath: true,
-  })
-);
 
 /**
  * Submit and save found person's data
  */
 app.post("/found", async (req, res) => {
+  // Get other person's data
+  const person = req.body;
+
   // Validate photo exist
-  if (!req.files) {
+  if (!person.photo) {
     res.status(412).send("No photo uploaded.");
     return;
   }
 
-  // Upload photo
-  const photoPath = await handlePhotoUpload(req.files.photo, "found");
-
   // Validate face detected in the image
-  if (!(await validateFaceDetected(photoPath))) {
+  if (!(await validateFaceDetected(person.photo))) {
     res.status(412).send("No face detected.");
     return;
   }
 
-  // Get other person's data
-  const person = req.body;
-  person.photo = photoPath;
-
-  // Compute face descriptor
-  person.faceDescriptor = await computeDescriptor(photoPath);
+  // Compute face descriptor from base64 photo
+  person.faceDescriptor = await computeDescriptor(person.photo);
 
   // Save to database
-  await insertFoundPerson(person);
+  let savedPerson = await insertFoundPerson(person);
 
-  res.send("Found person's data saved!");
+  // res.send("Found person's data saved!");
+  res.status(200).send({
+    message: "Found person's data saved!",
+    data: savedPerson,
+  });
 });
 
 /**
  * Submit and save missed person's data
  */
 app.post("/missed", async (req, res) => {
+  // Get other person's data
+  const person = req.body;
+
   // Validate photo exist
-  if (!req.files) {
+  if (!person.photo) {
     res.status(412).send("No photo uploaded.");
     return;
   }
 
-  // Upload photo
-  const photoPath = await handlePhotoUpload(req.files.photo, "missed");
+  // Validate contact info
+  if (!person.contactInfo.name || !person.contactInfo.phone) {
+    res.status(412).send("Contact info (name and phone) are required!");
+    return;
+  }
 
   // Validate face detected
-  if (!(await validateFaceDetected(photoPath))) {
+  if (!(await validateFaceDetected(person.photo))) {
     res.status(412).send("No face detected.");
     return;
   }
 
-  // Get other person's data
-  const person = req.body;
-  person.photo = photoPath;
-
   // Compute face descriptor
-  person.faceDescriptor = await computeDescriptor(photoPath);
+  person.faceDescriptor = await computeDescriptor(person.photo);
 
   // Save to database
-  await insertMissedPerson(person);
+  const savedPerson = await insertMissedPerson(person);
 
+  // Start comapre service
   compareService();
 
-  res.send("Missed person's data saved!");
+  res.status(200).send({
+    message: "Missed person's data saved!",
+    data: savedPerson,
+  });
+});
+
+/**
+ * Get matched person
+ */
+app.get("/matched/:id", async (req, res) => {
+  res.status(200).send(await getMatchedPerson(req.params.id));
 });
 
 /*
  * home for test purposes
  */
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/form.html");
+app.get("/", async (req, res) => {
+  res.send(await generateShortLink(`${process.env.APP_URL}/matched/123`));
 });
 
 const port = process.env.PORT || 300;
 app.listen(port, () => {
-  console.log("runing in port" + port);
+  console.log("runing in port " + port);
 });
