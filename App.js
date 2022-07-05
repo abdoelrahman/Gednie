@@ -1,11 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 
-const {
-  computeDescriptor,
-  validateFaceDetected,
-  generateShortLink,
-} = require("./functions");
+const { computeDescriptor, validateFaceDetected } = require("./functions");
 const {
   insertFoundPerson,
   insertMissedPerson,
@@ -99,11 +95,11 @@ app.get("/matched/:id", async (req, res) => {
 /*
  * home for test purposes
  */
-app.get("/", async (req, res) => {
-  res.send(await generateShortLink(`${process.env.APP_URL}/matched/123`));
+app.get("/", (req, res) => {
+  res.send("The server is up and running!");
 });
 
-const port = process.env.PORT || 300;
+const port = process.env.PORT || 80;
 app.listen(port, () => {
   console.log("runing in port " + port);
 });
