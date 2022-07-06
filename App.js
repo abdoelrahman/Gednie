@@ -8,6 +8,7 @@ const {
   getMatchedPerson,
 } = require("./db");
 const { compareService } = require("./services");
+const isBase64 = require("is-base64");
 
 const app = express();
 app.use(express.json({ limit: "60mb" }));
@@ -23,6 +24,12 @@ app.post("/found", async (req, res) => {
   // Validate photo exist
   if (!person.photo) {
     res.status(412).send("No photo uploaded.");
+    return;
+  }
+
+  // Validate photo is base64
+  if (!isBase64(person.photo, { allowMime: true })) {
+    res.status(412).send("Invalid photo.");
     return;
   }
 
@@ -55,6 +62,12 @@ app.post("/missed", async (req, res) => {
   // Validate photo exist
   if (!person.photo) {
     res.status(412).send("No photo uploaded.");
+    return;
+  }
+
+  // Validate photo is base64
+  if (!isBase64(person.photo, { allowMime: true })) {
+    res.status(412).send("Invalid photo.");
     return;
   }
 
